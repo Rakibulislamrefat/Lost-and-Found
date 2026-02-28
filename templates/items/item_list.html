@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Browse Items — Lost & Found Portal{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>Browse Items</h1>
+        <p>{{ total_results }} item{{ total_results|pluralize }} found</p>
+    </div>
+
+    <!-- Filter Bar -->
+    <form class="filter-bar" method="get" id="filter-form">
+        <div class="form-group">
+            <label for="id_q">Search</label>
+            {{ form.q }}
+        </div>
+        <div class="form-group">
+            <label for="id_category">Category</label>
+            {{ form.category }}
+        </div>
+        <div class="form-group">
+            <label for="id_item_type">Type</label>
+            {{ form.item_type }}
+        </div>
+        <div class="form-group" style="flex: 0; min-width: auto;">
+            <label>&nbsp;</label>
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </div>
+    </form>
+
+    <!-- Items Grid -->
+    {% if page_obj %}
+    <div class="item-grid">
+        {% for item in page_obj %}
+        <div class="item-card">
+            {% if item.image %}
+            <img src="{{ item.image.url }}" alt="{{ item.title }}" class="item-card-image" loading="lazy">
+            {% else %}
+            <div class="item-card-placeholder">{{ item.category|item_icon }}</div>
+            {% endif %}
+            <div class="item-card-body">
+                <div class="item-card-badges">
+                    <span class="badge badge-{{ item.item_type }}">{{ item.get_item_type_display }}</span>
+                    <span class="badge badge-category">{{ item.get_category_display }}</span>
+                    <span class="badge badge-{{ item.status }}">{{ item.get_status_display }}</span>
+                </div>
+                <h3 class="item-card-title">
+                    <a href="{% url 'item_detail' pk=item.pk %}">{{ item.title }}</a>
+                </h3>
+                <div class="item-card-meta">
+                    <span>📍 {{ item.location }}</span>
+                    <span>📅 {{ item.date_reported }}</span>
+                    <span>👤 {{ item.user.username }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+        <a
+            href="?{% if form.q.value %}q={{ form.q.value }}&{% endif %}{% if form.category.value %}category={{ form.category.value }}&{% endif %}{% if form.item_type.value %}item_type={{ form.item_type.value }}&{% endif %}page={{ page_obj.previous_page_number }}">←</a>
+        {% else %}
+        <span class="disabled">←</span>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <span class="current">{{ num }}</span>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} <a
+            href="?{% if form.q.value %}q={{ form.q.value }}&{% endif %}{% if form.category.value %}category={{ form.category.value }}&{% endif %}{% if form.item_type.value %}item_type={{ form.item_type.value }}&{% endif %}page={{ num }}">
+            {{ num }}</a>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <a
+                href="?{% if form.q.value %}q={{ form.q.value }}&{% endif %}{% if form.category.value %}category={{ form.category.value }}&{% endif %}{% if form.item_type.value %}item_type={{ form.item_type.value }}&{% endif %}page={{ page_obj.next_page_number }}">→</a>
+            {% else %}
+            <span class="disabled">→</span>
+            {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <h3>No items found</h3>
+        <p>Try adjusting your search or filters.</p>
+        <a href="{% url 'item_list' %}" class="btn btn-secondary">Clear Filters</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

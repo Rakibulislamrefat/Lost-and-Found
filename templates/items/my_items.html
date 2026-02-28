@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}My Items — Lost & Found Portal{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1>My Items</h1>
+            <p>Manage your lost & found reports</p>
+        </div>
+        <a href="{% url 'item_create' %}" class="btn btn-primary">➕ Post New Item</a>
+    </div>
+
+    {% if items %}
+    <div class="dashboard-grid">
+        {% for item in items %}
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <h3 class="dashboard-card-title">
+                    <a href="{% url 'item_detail' pk=item.pk %}">{{ item.title }}</a>
+                </h3>
+                <span class="badge badge-{{ item.item_type }}">{{ item.get_item_type_display }}</span>
+            </div>
+            <div class="dashboard-card-meta">
+                <div>📍 {{ item.location }} · 📅 {{ item.date_reported }}</div>
+                <div style="margin-top: 6px;">
+                    <span class="badge badge-{{ item.status }}">{{ item.get_status_display }}</span>
+                    {% if item.pending_claims_count %}
+                    <span class="badge badge-pending">{{ item.pending_claims_count }} pending claim{{
+                        item.pending_claims_count|pluralize }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="dashboard-card-actions">
+                <a href="{% url 'item_detail' pk=item.pk %}" class="btn btn-outline btn-sm">View</a>
+                <a href="{% url 'item_edit' pk=item.pk %}" class="btn btn-secondary btn-sm">✏️ Edit</a>
+                <a href="{% url 'manage_claims' pk=item.pk %}" class="btn btn-primary btn-sm">📋 Claims</a>
+                <a href="{% url 'item_delete' pk=item.pk %}" class="btn btn-danger btn-sm">🗑️</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">📦</div>
+        <h3>No items posted yet</h3>
+        <p>You haven't posted any lost or found items. Start by reporting one!</p>
+        <a href="{% url 'item_create' %}" class="btn btn-primary">Post Your First Item</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

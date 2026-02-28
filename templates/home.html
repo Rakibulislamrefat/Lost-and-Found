@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Lost & Found Portal — Home{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container hero-content">
+        <h1>Find What's <span>Lost</span>, Return What's <span>Found</span></h1>
+        <p>A community-powered portal to report lost belongings, post found items, and help reunite people with what
+            matters most.</p>
+
+        <form class="hero-search" action="{% url 'item_list' %}" method="get">
+            <input type="text" name="q" placeholder="Search for lost or found items..." aria-label="Search items">
+            <button type="submit">🔍</button>
+        </form>
+
+        <div class="hero-actions">
+            <a href="{% url 'item_list' %}?item_type=lost" class="btn btn-danger">
+                ❌ Lost Items
+            </a>
+            <a href="{% url 'item_list' %}?item_type=found" class="btn btn-success">
+                ✅ Found Items
+            </a>
+            {% if user.is_authenticated %}
+            <a href="{% url 'item_create' %}" class="btn btn-primary btn-lg">
+                ➕ Post an Item
+            </a>
+            {% else %}
+            <a href="{% url 'register' %}" class="btn btn-primary btn-lg">
+                🚀 Get Started
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Stats -->
+<section class="container">
+    <div class="stats-bar">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_items }}</div>
+            <div class="stat-label">Total Reports</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ total_lost }}</div>
+            <div class="stat-label">Lost Items</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ total_found }}</div>
+            <div class="stat-label">Found Items</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ total_claimed }}</div>
+            <div class="stat-label">Successfully Claimed</div>
+        </div>
+    </div>
+</section>
+
+<!-- Recent Lost Items -->
+<section class="section container">
+    <div class="section-header">
+        <h2>🔴 Recently Lost</h2>
+        <a href="{% url 'item_list' %}?item_type=lost" class="section-link">View all →</a>
+    </div>
+    {% if recent_lost %}
+    <div class="item-grid">
+        {% for item in recent_lost %}
+        <div class="item-card">
+            {% if item.image %}
+            <img src="{{ item.image.url }}" alt="{{ item.title }}" class="item-card-image">
+            {% else %}
+            <div class="item-card-placeholder">{{ item.category|item_icon }}</div>
+            {% endif %}
+            <div class="item-card-body">
+                <div class="item-card-badges">
+                    <span class="badge badge-lost">Lost</span>
+                    <span class="badge badge-category">{{ item.get_category_display }}</span>
+                </div>
+                <h3 class="item-card-title">
+                    <a href="{% url 'item_detail' pk=item.pk %}">{{ item.title }}</a>
+                </h3>
+                <div class="item-card-meta">
+                    <span>📍 {{ item.location }}</span>
+                    <span>📅 {{ item.date_reported }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">🎉</div>
+        <h3>No lost items right now!</h3>
+        <p>That's great news! Check back later for new listings.</p>
+    </div>
+    {% endif %}
+</section>
+
+<!-- Recent Found Items -->
+<section class="section container">
+    <div class="section-header">
+        <h2>🟢 Recently Found</h2>
+        <a href="{% url 'item_list' %}?item_type=found" class="section-link">View all →</a>
+    </div>
+    {% if recent_found %}
+    <div class="item-grid">
+        {% for item in recent_found %}
+        <div class="item-card">
+            {% if item.image %}
+            <img src="{{ item.image.url }}" alt="{{ item.title }}" class="item-card-image">
+            {% else %}
+            <div class="item-card-placeholder">{{ item.category|item_icon }}</div>
+            {% endif %}
+            <div class="item-card-body">
+                <div class="item-card-badges">
+                    <span class="badge badge-found">Found</span>
+                    <span class="badge badge-category">{{ item.get_category_display }}</span>
+                </div>
+                <h3 class="item-card-title">
+                    <a href="{% url 'item_detail' pk=item.pk %}">{{ item.title }}</a>
+                </h3>
+                <div class="item-card-meta">
+                    <span>📍 {{ item.location }}</span>
+                    <span>📅 {{ item.date_reported }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">📦</div>
+        <h3>No found items yet</h3>
+        <p>Found something? <a href="{% url 'item_create' %}">Report it here</a> and help someone!</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

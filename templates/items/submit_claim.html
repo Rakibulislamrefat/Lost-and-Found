@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Claim — {{ item.title }} — Lost & Found Portal{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <div class="form-card">
+        <h1>Submit a Claim</h1>
+        <p style="color: var(--text-secondary); margin-bottom: 24px;">
+            You are claiming: <strong>{{ item.title }}</strong>
+            <span class="badge badge-{{ item.item_type }}" style="margin-left: 8px;">{{ item.get_item_type_display
+                }}</span>
+        </p>
+
+        <form method="post" id="claim-form">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                <div class="form-help">{{ field.help_text }}</div>
+                {% endif %}
+                {% if field.errors %}
+                <div class="form-errors">
+                    {% for error in field.errors %}
+                    <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div style="display: flex; gap: 12px; margin-top: 8px;">
+                <button type="submit" class="btn btn-primary btn-lg" style="flex: 1;">Submit Claim</button>
+                <a href="{% url 'item_detail' pk=item.pk %}" class="btn btn-secondary btn-lg">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

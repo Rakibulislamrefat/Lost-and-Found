@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Item — Lost & Found Portal{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 64px 24px;">
+    <div class="confirm-card">
+        <div class="confirm-icon">⚠️</div>
+        <h2>Delete Item?</h2>
+        <p>Are you sure you want to delete <strong>"{{ item.title }}"</strong>? This action cannot be undone and all
+            associated claims will also be removed.</p>
+        <div class="confirm-actions">
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">🗑️ Yes, Delete</button>
+            </form>
+            <a href="{% url 'item_detail' pk=item.pk %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

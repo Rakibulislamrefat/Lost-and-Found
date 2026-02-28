@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Claims — {{ item.title }} — Lost & Found Portal{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <a href="{% url 'my_items' %}" class="btn btn-outline btn-sm">← Back to My Items</a>
+        <h1 style="margin-top: 16px;">Claims on "{{ item.title }}"</h1>
+        <p>
+            <span class="badge badge-{{ item.item_type }}">{{ item.get_item_type_display }}</span>
+            <span class="badge badge-{{ item.status }}">{{ item.get_status_display }}</span>
+            · {{ claims.count }} claim{{ claims.count|pluralize }}
+        </p>
+    </div>
+
+    {% if claims %}
+    <div class="claims-list">
+        {% for claim in claims %}
+        <div class="claim-card">
+            <div class="claim-header">
+                <span class="claim-user">👤 {{ claim.claimant.username }}</span>
+                <span class="badge badge-{{ claim.status }}">{{ claim.get_status_display }}</span>
+            </div>
+            <div class="claim-message">{{ claim.message }}</div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.8rem; color: var(--text-muted);">
+                    Submitted {{ claim.created_at|timesince }} ago
+                </span>
+                {% if claim.status == 'pending' %}
+                <div class="claim-actions">
+                    <form method="post" action="{% url 'update_claim' pk=claim.pk %}" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="approve">
+                        <button type="submit" class="btn btn-success btn-sm">✅ Approve</button>
+                    </form>
+                    <form method="post" action="{% url 'update_claim' pk=claim.pk %}" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="reject">
+                        <button type="submit" class="btn btn-danger btn-sm">❌ Reject</button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">📨</div>
+        <h3>No claims yet</h3>
+        <p>No one has claimed this item yet. Check back later!</p>
+        <a href="{% url 'my_items' %}" class="btn btn-secondary">Back to My Items</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

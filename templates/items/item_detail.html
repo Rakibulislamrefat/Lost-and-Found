@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}{{ item.title }} — Lost & Found Portal{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <a href="{% url 'item_list' %}" class="btn btn-outline btn-sm">← Back to listings</a>
+    </div>
+
+    <div class="detail-container">
+        <!-- Image -->
+        <div class="detail-image-wrapper">
+            {% if item.image %}
+            <img src="{{ item.image.url }}" alt="{{ item.title }}">
+            {% else %}
+            <div class="detail-image-placeholder">{{ item.category|item_icon }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Info -->
+        <div class="detail-info">
+            <div class="detail-badges">
+                <span class="badge badge-{{ item.item_type }}">{{ item.get_item_type_display }}</span>
+                <span class="badge badge-{{ item.status }}">{{ item.get_status_display }}</span>
+                <span class="badge badge-category">{{ item.get_category_display }}</span>
+            </div>
+
+            <h1 class="detail-title">{{ item.title }}</h1>
+
+            <p class="detail-description">{{ item.description }}</p>
+
+            <div class="detail-meta-grid">
+                <div class="detail-meta-item">
+                    <div class="meta-label">Location</div>
+                    <div class="meta-value">📍 {{ item.location }}</div>
+                </div>
+                <div class="detail-meta-item">
+                    <div class="meta-label">Date Reported</div>
+                    <div class="meta-value">📅 {{ item.date_reported }}</div>
+                </div>
+                <div class="detail-meta-item">
+                    <div class="meta-label">Posted By</div>
+                    <div class="meta-value">👤 {{ item.user.username }}</div>
+                </div>
+                <div class="detail-meta-item">
+                    <div class="meta-label">Posted On</div>
+                    <div class="meta-value">🕐 {{ item.created_at|date:"M d, Y" }}</div>
+                </div>
+            </div>
+
+            <div class="detail-actions">
+                {% if user.is_authenticated %}
+                {% if item.user == user %}
+                <a href="{% url 'item_edit' pk=item.pk %}" class="btn btn-secondary">✏️ Edit</a>
+                <a href="{% url 'item_delete' pk=item.pk %}" class="btn btn-danger">🗑️ Delete</a>
+                <a href="{% url 'manage_claims' pk=item.pk %}" class="btn btn-primary">
+                    📋 Claims {% if item.pending_claims_count %}({{ item.pending_claims_count }}){% endif %}
+                </a>
+                {% elif item.status == 'active' %}
+                {% if user_has_claimed %}
+                <span class="btn btn-secondary" style="cursor: default; opacity: 0.7;">✅ Claim Submitted</span>
+                {% else %}
+                <a href="{% url 'submit_claim' pk=item.pk %}" class="btn btn-primary btn-lg">🙋 Claim This Item</a>
+                {% endif %}
+                {% endif %}
+                {% else %}
+                <a href="{% url 'login' %}?next={% url 'item_detail' pk=item.pk %}" class="btn btn-primary">Login to
+                    Claim</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

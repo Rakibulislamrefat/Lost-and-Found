@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile — Lost & Found Portal{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>My Profile</h1>
+    </div>
+
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="profile-avatar">
+            {{ user.username|first|upper }}
+        </div>
+        <div class="profile-name">{{ user.username }}</div>
+        <div class="profile-email">{{ user.email|default:"No email set" }}</div>
+        <div class="profile-stats">
+            <div class="profile-stat">
+                <div class="profile-stat-number">{{ user_items.count }}</div>
+                <div class="profile-stat-label">Items Posted</div>
+            </div>
+            <div class="profile-stat">
+                <div class="profile-stat-number">{{ user_claims.count }}</div>
+                <div class="profile-stat-label">Claims Made</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Items -->
+    <div class="section">
+        <div class="section-header">
+            <h2>My Recent Items</h2>
+            <a href="{% url 'my_items' %}" class="section-link">View all →</a>
+        </div>
+        {% if user_items %}
+        <div class="item-grid">
+            {% for item in user_items|slice:":4" %}
+            <div class="item-card">
+                <div class="item-card-body">
+                    <div class="item-card-badges">
+                        <span class="badge badge-{{ item.item_type }}">{{ item.get_item_type_display }}</span>
+                        <span class="badge badge-{{ item.status }}">{{ item.get_status_display }}</span>
+                    </div>
+                    <h3 class="item-card-title">
+                        <a href="{% url 'item_detail' pk=item.pk %}">{{ item.title }}</a>
+                    </h3>
+                    <div class="item-card-meta">
+                        <span>📍 {{ item.location }}</span>
+                        <span>📅 {{ item.date_reported }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            <h3>No items posted yet</h3>
+            <p>Start helping the community!</p>
+            <a href="{% url 'item_create' %}" class="btn btn-primary">Post an Item</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Recent Claims -->
+    <div class="section">
+        <div class="section-header">
+            <h2>My Recent Claims</h2>
+        </div>
+        {% if user_claims %}
+        <div class="claims-list">
+            {% for claim in user_claims|slice:":5" %}
+            <div class="claim-card">
+                <div class="claim-header">
+                    <span class="claim-user">
+                        <a href="{% url 'item_detail' pk=claim.item.pk %}">{{ claim.item.title }}</a>
+                    </span>
+                    <span class="badge badge-{{ claim.status }}">{{ claim.get_status_display }}</span>
+                </div>
+                <div class="claim-message">{{ claim.message|truncatewords:30 }}</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">
+                    Submitted {{ claim.created_at|timesince }} ago
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📨</div>
+            <h3>No claims made yet</h3>
+            <p>Browse items and submit a claim if you find something that belongs to you.</p>
+            <a href="{% url 'item_list' %}" class="btn btn-primary">Browse Items</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
