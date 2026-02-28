@@ -3,6 +3,11 @@ Django settings for Lost & Found Portal project.
 """
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+import dj_database_url
+
+# Load .env file for local development
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -55,12 +60,20 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'portal.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Database — Uses PostgreSQL on Vercel (via DATABASE_URL), falls back to SQLite locally
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL)
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
