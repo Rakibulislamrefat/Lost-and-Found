@@ -104,7 +104,10 @@ STORAGES = {
 
 # Media files (uploaded images)
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+if DEBUG:
+    MEDIA_ROOT = BASE_DIR / 'media'
+else:
+    MEDIA_ROOT = '/tmp/media'
 
 # Auth settings
 LOGIN_URL = '/accounts/login/'
